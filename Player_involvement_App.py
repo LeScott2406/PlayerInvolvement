@@ -10,7 +10,7 @@ import streamlit as st
 import requests
 
 # Title of the app
-st.title("OBV Analysis")
+st.title("Player Involvement")
 
 # Function to load data (using the raw file from GitHub)
 @st.cache_data
@@ -113,19 +113,19 @@ if selected_teams and "All" not in selected_teams:
 # Define columns to display
 display_columns = [
     'Name', 'Team', 'Age', 'Primary Position', 'Usage',
-    'OBV', 'Team OBV', 'OBV Contribution',
-    'Key Passes', 'Team Key Passes', 'Key Passes Contribution',
-    'Shots', 'Team Shots', 'Shots Contribution',
-    'xG', 'Team xG', 'xG Contribution',
-    'Ball Recoveries', 'Team Ball Recoveries', 'Ball Recoveries Contribution',
-    'Opposition Half Ball Recoveries', 'Team Opposition Half Ball Recoveries', 'Opposition Half Ball Recoveries Contribution',
-    'Deep Completions', 'Team Deep Completions', 'Deep Completions Contribution',
-    'Open Play Final Third Passes', 'Team Open Play Final Third Passes', 'Open Play Final Third Passes Contribution',
-    'xGBuildup', 'Team xGBuildup', 'xGBuildup Contribution',
-    'Defensive Action OBV', 'Team Defensive Action OBV', 'Defensive Action OBV Contribution',
-    'Dribble & Carry OBV', 'Team Dribble & Carry OBV', 'Dribble & Carry OBV Contribution',
-    'Pass OBV', 'Team Pass OBV', 'Pass OBV Contribution',
-    'Shot OBV', 'Team Shot OBV', 'Shot OBV Contribution'
+    'OBV', 'OBV Contribution',
+    'Key Passes', 'Key Passes Contribution',
+    'Shots', 'Shots Contribution',
+    'xG', 'xG Contribution',
+    'Ball Recoveries', 'Ball Recoveries Contribution',
+    'Opposition Half Ball Recoveries', 'Opposition Half Ball Recoveries Contribution',
+    'Deep Completions', 'Deep Completions Contribution',
+    'Open Play Final Third Passes', 'Open Play Final Third Passes Contribution',
+    'xGBuildup', 'xGBuildup Contribution',
+    'Defensive Action OBV', 'Defensive Action OBV Contribution',
+    'Dribble & Carry OBV', 'Dribble & Carry OBV Contribution',
+    'Pass OBV', 'Pass OBV Contribution',
+    'Shot OBV', 'Shot OBV Contribution'
 ]
 
 # Ensure only available columns are displayed
