@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# coding: utf-8
+
 import pandas as pd
 import numpy as np
 import streamlit as st
@@ -7,17 +10,20 @@ import requests
 st.title("Player Involvement")
 
 # Function to load data once per session
+@st.cache_data
 def load_data():
-    if "player_stats_df" not in st.session_state:
-        file_url = "https://github.com/LeScott2406/StatsApp/raw/refs/heads/main/updated_player_stats.xlsx"
-        response = requests.get(file_url)
-        with open("/tmp/updated_player_stats.xlsx", "wb") as f:
-            f.write(response.content)
-        st.session_state.player_stats_df = pd.read_excel("/tmp/updated_player_stats.xlsx")  
-    return st.session_state.player_stats_df
+    file_url = "https://github.com/LeScott2406/StatsApp/raw/refs/heads/main/updated_player_stats.xlsx"
+    response = requests.get(file_url)
+    with open("/tmp/updated_player_stats.xlsx", "wb") as f:
+        f.write(response.content)
+    player_stats_df = pd.read_excel("/tmp/updated_player_stats.xlsx")
+    return player_stats_df
 
-# Load the data only once per session
-player_stats_df = load_data()
+# Load data and store it in session state
+if "player_stats_df" not in st.session_state:
+    st.session_state.player_stats_df = load_data()
+
+player_stats_df = st.session_state.player_stats_df
 
 # List of metrics for calculations
 metrics = [
@@ -33,7 +39,7 @@ for metric in metrics:
     if metric in player_stats_df.columns:
         player_stats_df[f"Team {metric}"] = player_stats_df.groupby("Team")[metric].transform("sum")
         player_stats_df[f"{metric} Contribution"] = (player_stats_df[metric] / player_stats_df[f"Team {metric}"]) * 100
-        player_stats_df[f"{metric} Contribution"] = player_stats_df[f"{metric} Contribution"].round(2)  # Round to 2 decimal places
+        player_stats_df[f"{metric} Contribution"] = player_stats_df[f"{metric} Contribution"].round(2)  # Keep numeric
 
 # Sidebar Filters
 st.sidebar.header("Filters")
@@ -126,15 +132,18 @@ display_columns = [
 available_columns = [col for col in display_columns if col in filtered_df.columns]
 filtered_df = filtered_df[available_columns]
 
-# Format Contribution columns as percentages
+# Convert Contributions to numeric for sorting
 for metric in metrics:
     contribution_col = f"{metric} Contribution"
     if contribution_col in filtered_df.columns:
-        filtered_df[contribution_col] = filtered_df[contribution_col].map(lambda x: f"{x:.2f}%" if not pd.isna(x) else "N/A")
+        filtered_df[contribution_col] = pd.to_numeric(filtered_df[contribution_col], errors='coerce')
 
-# Display the filtered DataFrame
+# Sort data by the highest contribution column
+filtered_df = filtered_df.sort_values(by="Shots Contribution", ascending=False)  # Adjust for relevant column
+
+# Format Contribution columns as percentages (without affecting sorting)
 st.write("Filtered Player Stats:")
-st.dataframe(filtered_df)
+st.dataframe(filtered_df.style.format({col: "{:.2f}%" for col in filtered_df.columns if "Contribution" in col}))
 
 # Option to download the filtered data as an Excel file
 output_path = "/tmp/filtered_player_stats.xlsx"
