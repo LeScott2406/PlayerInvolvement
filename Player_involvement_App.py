@@ -1,9 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[ ]:
-
-
 import pandas as pd
 import numpy as np
 import streamlit as st
@@ -12,17 +6,17 @@ import requests
 # Title of the app
 st.title("Player Involvement")
 
-# Function to load data (using the raw file from GitHub)
-@st.cache_data
+# Function to load data once per session
 def load_data():
-    file_url = "https://github.com/LeScott2406/StatsApp/raw/refs/heads/main/updated_player_stats.xlsx"
-    response = requests.get(file_url)
-    with open("/tmp/updated_player_stats.xlsx", "wb") as f:
-        f.write(response.content)
-    player_stats_df = pd.read_excel("/tmp/updated_player_stats.xlsx")
-    return player_stats_df
+    if "player_stats_df" not in st.session_state:
+        file_url = "https://github.com/LeScott2406/StatsApp/raw/refs/heads/main/updated_player_stats.xlsx"
+        response = requests.get(file_url)
+        with open("/tmp/updated_player_stats.xlsx", "wb") as f:
+            f.write(response.content)
+        st.session_state.player_stats_df = pd.read_excel("/tmp/updated_player_stats.xlsx")  
+    return st.session_state.player_stats_df
 
-# Load the data
+# Load the data only once per session
 player_stats_df = load_data()
 
 # List of metrics for calculations
@@ -113,19 +107,19 @@ if selected_teams and "All" not in selected_teams:
 # Define columns to display
 display_columns = [
     'Name', 'Team', 'Age', 'Primary Position', 'Usage',
-    'OBV', 'OBV Contribution',
-    'Key Passes', 'Key Passes Contribution',
-    'Shots', 'Shots Contribution',
-    'xG', 'xG Contribution',
-    'Ball Recoveries', 'Ball Recoveries Contribution',
-    'Opposition Half Ball Recoveries', 'Opposition Half Ball Recoveries Contribution',
-    'Deep Completions', 'Deep Completions Contribution',
-    'Open Play Final Third Passes', 'Open Play Final Third Passes Contribution',
-    'xGBuildup', 'xGBuildup Contribution',
-    'Defensive Action OBV', 'Defensive Action OBV Contribution',
-    'Dribble & Carry OBV', 'Dribble & Carry OBV Contribution',
-    'Pass OBV', 'Pass OBV Contribution',
-    'Shot OBV', 'Shot OBV Contribution'
+    'OBV Contribution',
+    'Key Passes Contribution',
+    'Shots Contribution',
+    'xG Contribution',
+    'Ball Recoveries Contribution',
+    'Opposition Half Ball Recoveries Contribution',
+    'Deep Completions Contribution',
+    'Open Play Final Third Passes Contribution',
+    'xGBuildup Contribution',
+    'Defensive Action OBV Contribution',
+    'Dribble & Carry OBV Contribution',
+    'Pass OBV Contribution',
+    'Shot OBV Contribution'
 ]
 
 # Ensure only available columns are displayed
@@ -151,4 +145,3 @@ st.download_button(
     file_name="filtered_player_stats.xlsx",
     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 )
-
