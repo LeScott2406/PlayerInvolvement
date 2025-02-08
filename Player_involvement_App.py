@@ -39,7 +39,7 @@ for metric in metrics:
     if metric in player_stats_df.columns:
         player_stats_df[f"Team {metric}"] = player_stats_df.groupby("Team")[metric].transform("sum")
         player_stats_df[f"{metric} Contribution"] = (player_stats_df[metric] / player_stats_df[f"Team {metric}"]) * 100
-        player_stats_df[f"{metric} Contribution"] = player_stats_df[f"{metric} Contribution"].round(2)  # Keep numeric
+        player_stats_df[f"{metric} Contribution"] = player_stats_df[f"{metric} Contribution"].round(2)  # Round to 2 decimal places
 
 # Sidebar Filters
 st.sidebar.header("Filters")
@@ -132,18 +132,15 @@ display_columns = [
 available_columns = [col for col in display_columns if col in filtered_df.columns]
 filtered_df = filtered_df[available_columns]
 
-# Convert Contributions to numeric for sorting
+# Format Contribution columns as percentages (without affecting sorting)
 for metric in metrics:
     contribution_col = f"{metric} Contribution"
     if contribution_col in filtered_df.columns:
-        filtered_df[contribution_col] = pd.to_numeric(filtered_df[contribution_col], errors='coerce')
+        filtered_df[contribution_col] = filtered_df[contribution_col].map(lambda x: f"{x:.2f}%" if not pd.isna(x) else "N/A")
 
-# Sort data by the highest contribution column
-filtered_df = filtered_df.sort_values(by="Shots Contribution", ascending=False)  # Adjust for relevant column
-
-# Format Contribution columns as percentages (without affecting sorting)
+# Display the filtered DataFrame
 st.write("Filtered Player Stats:")
-st.dataframe(filtered_df.style.format({col: "{:.2f}%" for col in filtered_df.columns if "Contribution" in col}))
+st.dataframe(filtered_df)
 
 # Option to download the filtered data as an Excel file
 output_path = "/tmp/filtered_player_stats.xlsx"
