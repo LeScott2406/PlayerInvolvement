@@ -110,18 +110,29 @@ if selected_competitions and "All" not in selected_competitions:
 if selected_teams and "All" not in selected_teams:
     filtered_df = filtered_df[filtered_df['Team'].isin(selected_teams)]
 
-# Sorting the filtered DataFrame based on the selected metric (after filtering)
-# Sort by the numeric values of the 'Contribution' columns before formatting to percentages
-for metric in metrics:
-    contribution_col = f"{metric} Contribution"
-    if contribution_col in filtered_df.columns:
-        # Ensure numeric sorting first (before applying percentage format)
-        filtered_df[contribution_col] = pd.to_numeric(filtered_df[contribution_col], errors='coerce')
+# Define columns to display
+display_columns = [
+    'Name', 'Team', 'Age', 'Primary Position', 'Usage',
+    'OBV Contribution',
+    'Key Passes Contribution',
+    'Shots Contribution',
+    'xG Contribution',
+    'Ball Recoveries Contribution',
+    'Opposition Half Ball Recoveries Contribution',
+    'Deep Completions Contribution',
+    'Open Play Final Third Passes Contribution',
+    'xGBuildup Contribution',
+    'Defensive Action OBV Contribution',
+    'Dribble & Carry OBV Contribution',
+    'Pass OBV Contribution',
+    'Shot OBV Contribution'
+]
 
-        # Sort the filtered DataFrame by the contribution column
-        filtered_df = filtered_df.sort_values(by=contribution_col, ascending=False)
+# Ensure only available columns are displayed
+available_columns = [col for col in display_columns if col in filtered_df.columns]
+filtered_df = filtered_df[available_columns]
 
-# Format Contribution columns as percentages after sorting
+# Format Contribution columns as percentages (without affecting sorting)
 for metric in metrics:
     contribution_col = f"{metric} Contribution"
     if contribution_col in filtered_df.columns:
