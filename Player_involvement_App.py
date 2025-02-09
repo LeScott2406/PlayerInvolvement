@@ -12,7 +12,7 @@ st.title("Player Involvement")
 # Function to load data once per session
 @st.cache_data
 def load_data():
-    file_url = "https://github.com/LeScott2406/PlayerInvolvement/raw/refs/heads/main/Updated_Data.xlsx"
+    file_url = "https://github.com/LeScott2406/StatsApp/raw/refs/heads/main/updated_player_stats.xlsx"
     response = requests.get(file_url)
     with open("/tmp/updated_player_stats.xlsx", "wb") as f:
         f.write(response.content)
@@ -136,14 +136,14 @@ available_columns = [col for col in display_columns if col in filtered_df.column
 filtered_df = filtered_df[available_columns]
 
 # Format columns for display
+filtered_df["Age"] = filtered_df["Age"].astype(int)
+filtered_df["Usage"] = filtered_df["Usage"].round(2)
+for col in numeric_columns:
+    if col in filtered_df.columns:
+        filtered_df[col] = filtered_df[col].map(lambda x: f"{x:.2f}%" if not pd.isna(x) else "N/A")
+
 st.write("Filtered Player Stats:")
-st.dataframe(
-    filtered_df.style.format({
-        "Age": "{:.0f}",  # Whole number for Age
-        "Usage": "{:.2f}",  # Two decimal places for Usage
-        **{col: "{:.2f}%" for col in numeric_columns if col in filtered_df.columns}  # Percentage formatting
-    })
-)
+st.dataframe(filtered_df)
 
 # Option to download the filtered data as an Excel file
 output_path = "/tmp/filtered_player_stats.xlsx"
