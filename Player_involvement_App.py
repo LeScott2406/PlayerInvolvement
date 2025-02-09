@@ -12,7 +12,7 @@ st.title("Player Involvement")
 # Function to load data once per session
 @st.cache_data
 def load_data():
-    file_url = "https://github.com/LeScott2406/PlayerInvolvement/raw/refs/heads/main/Updated_Data.xlsx"
+    file_url = "https://github.com/LeScott2406/StatsApp/raw/refs/heads/main/updated_player_stats.xlsx"
     response = requests.get(file_url)
     with open("/tmp/updated_player_stats.xlsx", "wb") as f:
         f.write(response.content)
@@ -39,7 +39,8 @@ numeric_columns = [
     'OBV Contribution', 'Key Passes Contribution', 'Shots Contribution', 'xG Contribution',
     'Ball Recoveries Contribution', 'Opposition Half Ball Recoveries Contribution',
     'Deep Completions Contribution', 'Open Play Final Third Passes Contribution',
-    'xGBuildup Contribution', 'Defensive Action OBV Contribution', 'Dribble & Carry OBV Contribution'
+    'xGBuildup Contribution', 'Defensive Action OBV Contribution', 'Dribble & Carry OBV Contribution',
+    'Pass OBV Contribution', 'Shot OBV Contribution'
 ]
 for col in numeric_columns:
     if col in player_stats_df.columns:
@@ -123,13 +124,8 @@ if selected_teams and "All" not in selected_teams:
 
 # Define columns to display
 display_columns = [
-    'Name', 'Team', 'Age', 'Primary Position', 'Usage',
-    'OBV Contribution', 'Key Passes Contribution', 'Shots Contribution', 'xG Contribution',
-    'Ball Recoveries Contribution', 'Opposition Half Ball Recoveries Contribution',
-    'Deep Completions Contribution', 'Open Play Final Third Passes Contribution',
-    'xGBuildup Contribution', 'Defensive Action OBV Contribution', 'Dribble & Carry OBV Contribution',
-    'Pass OBV Contribution', 'Shot OBV Contribution'
-]
+    'Name', 'Team', 'Age', 'Primary Position', 'Usage'
+] + numeric_columns
 
 # Ensure only available columns are displayed
 available_columns = [col for col in display_columns if col in filtered_df.columns]
@@ -140,7 +136,7 @@ filtered_df["Age"] = filtered_df["Age"].astype(int)
 filtered_df["Usage"] = filtered_df["Usage"].round(2)
 for col in numeric_columns:
     if col in filtered_df.columns:
-        filtered_df[col] = filtered_df[col].map(lambda x: f"{x:.2f}%" if not pd.isna(x) else "N/A")
+        filtered_df[col] = filtered_df[col].astype(float).round(2)
 
 st.write("Filtered Player Stats:")
 st.dataframe(filtered_df)
