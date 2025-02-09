@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
 import pandas as pd
 import numpy as np
 import streamlit as st
@@ -39,28 +36,16 @@ for metric in metrics:
     if metric in player_stats_df.columns:
         player_stats_df[f"Team {metric}"] = player_stats_df.groupby("Team")[metric].transform("sum")
         player_stats_df[f"{metric} Contribution"] = (player_stats_df[metric] / player_stats_df[f"Team {metric}"]) * 100
-        player_stats_df[f"{metric} Contribution"] = player_stats_df[f"{metric} Contribution"].round(2)  # Round to 2 decimal places
+        player_stats_df[f"{metric} Contribution"] = player_stats_df[f"{metric} Contribution"].round(2)  # Keep as float
 
 # Sidebar Filters
 st.sidebar.header("Filters")
 
 # Age slider
-age_min, age_max = st.sidebar.slider(
-    "Age Range",
-    min_value=15,
-    max_value=35,
-    value=(15, 35),
-    step=1
-)
+age_min, age_max = st.sidebar.slider("Age Range", 15, 35, (15, 35), 1)
 
 # Usage slider
-usage_min, usage_max = st.sidebar.slider(
-    "Usage Range",
-    min_value=0,
-    max_value=140,
-    value=(0, 140),
-    step=1
-)
+usage_min, usage_max = st.sidebar.slider("Usage Range", 0, 140, (0, 140), 1)
 
 # Primary Position multi-select dropdown
 primary_positions = ['All'] + player_stats_df['Primary Position'].unique().tolist()
@@ -88,8 +73,7 @@ if 'Minutes Played' in player_stats_df.columns:
 # Calculate Available Minutes and Usage
 if 'Matches' in player_stats_df.columns:
     player_stats_df['Available Minutes'] = player_stats_df['Matches'] * 90
-
-    if 'Minutes Played' in player_stats_df.columns and 'Available Minutes' in player_stats_df.columns:
+    if 'Minutes Played' in player_stats_df.columns:
         player_stats_df['Usage'] = ((player_stats_df['Minutes Played'] / player_stats_df['Available Minutes']) * 100).round(2)
 
 # Filter based on user selections
@@ -111,36 +95,17 @@ if selected_teams and "All" not in selected_teams:
     filtered_df = filtered_df[filtered_df['Team'].isin(selected_teams)]
 
 # Define columns to display
-display_columns = [
-    'Name', 'Team', 'Age', 'Primary Position', 'Usage',
-    'OBV Contribution',
-    'Key Passes Contribution',
-    'Shots Contribution',
-    'xG Contribution',
-    'Ball Recoveries Contribution',
-    'Opposition Half Ball Recoveries Contribution',
-    'Deep Completions Contribution',
-    'Open Play Final Third Passes Contribution',
-    'xGBuildup Contribution',
-    'Defensive Action OBV Contribution',
-    'Dribble & Carry OBV Contribution',
-    'Pass OBV Contribution',
-    'Shot OBV Contribution'
-]
+display_columns = ['Name', 'Team', 'Age', 'Primary Position', 'Usage'] + [f"{metric} Contribution" for metric in metrics]
 
 # Ensure only available columns are displayed
 available_columns = [col for col in display_columns if col in filtered_df.columns]
 filtered_df = filtered_df[available_columns]
 
-# Format Contribution columns as percentages (without affecting sorting)
-for metric in metrics:
-    contribution_col = f"{metric} Contribution"
-    if contribution_col in filtered_df.columns:
-        filtered_df[contribution_col] = filtered_df[contribution_col].map(lambda x: f"{x:.2f}%" if not pd.isna(x) else "N/A")
-
-# Display the filtered DataFrame
+# Display the filtered DataFrame with correctly formatted numeric values
 st.write("Filtered Player Stats:")
-st.dataframe(filtered_df)
+st.dataframe(
+    filtered_df.style.format({col: "{:.2f}%" for col in available_columns if "Contribution" in col})
+)
 
 # Option to download the filtered data as an Excel file
 output_path = "/tmp/filtered_player_stats.xlsx"
