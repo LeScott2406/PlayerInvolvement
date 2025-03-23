@@ -79,15 +79,15 @@ primary_positions = ['All'] + player_stats_df['Primary Position'].unique().tolis
 selected_primary_positions = st.sidebar.multiselect("Primary Position", primary_positions)
 
 # Competition multi-select dropdown
-competitions = ['All'] + player_stats_df['Competition'].unique().tolist()
-selected_competitions = st.sidebar.multiselect("Competition", competitions)
+league = ['All'] + player_stats_df['League'].unique().tolist()
+selected_competitions = st.sidebar.multiselect("League", league)
 
 # Team multi-select dropdown
 if selected_competitions:
     if "All" in selected_competitions:
         teams = ['All'] + player_stats_df['Team'].unique().tolist()
     else:
-        teams = ['All'] + player_stats_df[player_stats_df['Competition'].isin(selected_competitions)]['Team'].unique().tolist()
+        teams = ['All'] + player_stats_df[player_stats_df['League'].isin(selected_competitions)]['Team'].unique().tolist()
 else:
     teams = ['All']
 
@@ -116,7 +116,7 @@ if selected_primary_positions and "All" not in selected_primary_positions:
 
 # Filter by Competition
 if selected_competitions and "All" not in selected_competitions:
-    filtered_df = filtered_df[filtered_df['Competition'].isin(selected_competitions)]
+    filtered_df = filtered_df[filtered_df['League'].isin(selected_competitions)]
 
 # Filter by Team
 if selected_teams and "All" not in selected_teams:
