@@ -28,7 +28,7 @@ player_stats_df = st.session_state.player_stats_df
 # List of metrics for calculations
 metrics = [
     "OBV", "Key Passes", "Shots", "xG", "Ball Recoveries",
-    "Opposition Half Ball Recoveries", "Deep Completions",
+    "PAdj Pressures",
     "Open Play Final Third Passes", "xGBuildup",
     "Defensive Action OBV", "Dribble & Carry OBV",
     "Pass OBV", "Shot OBV"
@@ -40,7 +40,7 @@ numeric_columns = [
     'Ball Recoveries Contribution', 'Opposition Half Ball Recoveries Contribution',
     'Deep Completions Contribution', 'Open Play Final Third Passes Contribution',
     'xGBuildup Contribution', 'Defensive Action OBV Contribution', 'Dribble & Carry OBV Contribution',
-    'Pass OBV Contribution', 'Shot OBV Contribution'
+    'Pass OBV Contribution', 'Shot OBV Contribution', 'PAdj Pressures'
 ]
 for col in numeric_columns:
     if col in player_stats_df.columns:
