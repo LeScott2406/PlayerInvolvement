@@ -25,6 +25,39 @@ if "player_stats_df" not in st.session_state:
 
 player_stats_df = st.session_state.player_stats_df
 
+# Define the function to assign positions
+def assign_position(primary_position):
+    striker = {"Centre Forward", "Left Centre Forward", "Right Centre Forward"}
+    winger = {
+        "Left Attacking Midfielder", "Left Midfielder",
+        "Right Attacking Midfielder", "Right Midfielder",
+        "Left Wing", "Right Wing"
+    }
+    midfielder = {
+        "Right Defensive Midfielder", "Left Defensive Midfielder",
+        "Right Centre Midfielder", "Left Centre Midfielder",
+        "Centre Defensive Midfielder", "Centre Attacking Midfielder"
+    }
+    fullback = {"Left Back", "Left Wing Back", "Right Back", "Right Wing Back"}
+    defender = {"Centre Back", "Left Centre Back", "Right Centre Back"}
+
+    if primary_position in striker:
+        return "Striker"
+    elif primary_position in winger:
+        return "Winger"
+    elif primary_position in midfielder:
+        return "Midfielder"
+    elif primary_position in fullback:
+        return "Fullback"
+    elif primary_position in defender:
+        return "Defender"
+    else:
+        return "Unknown"
+
+# Apply the function to create the new column
+if "Primary Position" in player_stats_df.columns:
+    player_stats_df["Position"] = player_stats_df["Primary Position"].apply(assign_position)
+
 # List of metrics for calculations
 metrics = [
     "OBV", "Key Passes", "Shots", "xG", "Ball Recoveries",
@@ -74,22 +107,23 @@ usage_min, usage_max = st.sidebar.slider(
     step=1
 )
 
+# Position multi-select dropdown
+positions = player_stats_df['Position'].unique().tolist()
+selected_positions = st.sidebar.multiselect("Position", positions)
+
 # Primary Position multi-select dropdown
-primary_positions = ['All'] + player_stats_df['Primary Position'].unique().tolist()
+primary_positions = player_stats_df['Primary Position'].unique().tolist()
 selected_primary_positions = st.sidebar.multiselect("Primary Position", primary_positions)
 
 # Competition multi-select dropdown
-league = ['All'] + player_stats_df['League'].unique().tolist()
-selected_competitions = st.sidebar.multiselect("League", league)
+leagues = player_stats_df['League'].unique().tolist()
+selected_competitions = st.sidebar.multiselect("League", leagues)
 
-# Team multi-select dropdown
+# Team multi-select dropdown (dependent on selected competitions)
 if selected_competitions:
-    if "All" in selected_competitions:
-        teams = ['All'] + player_stats_df['Team'].unique().tolist()
-    else:
-        teams = ['All'] + player_stats_df[player_stats_df['League'].isin(selected_competitions)]['Team'].unique().tolist()
+    teams = player_stats_df[player_stats_df['League'].isin(selected_competitions)]['Team'].unique().tolist()
 else:
-    teams = ['All']
+    teams = player_stats_df['Team'].unique().tolist()
 
 selected_teams = st.sidebar.multiselect("Team", teams)
 
@@ -110,21 +144,25 @@ filtered_df = player_stats_df[
     (player_stats_df['Usage'] >= usage_min) & (player_stats_df['Usage'] <= usage_max)
 ]
 
+# Filter by Position
+if selected_positions:
+    filtered_df = filtered_df[filtered_df['Position'].isin(selected_positions)]
+
 # Filter by Primary Position
-if selected_primary_positions and "All" not in selected_primary_positions:
+if selected_primary_positions:
     filtered_df = filtered_df[filtered_df['Primary Position'].isin(selected_primary_positions)]
 
 # Filter by Competition
-if selected_competitions and "All" not in selected_competitions:
+if selected_competitions:
     filtered_df = filtered_df[filtered_df['League'].isin(selected_competitions)]
 
 # Filter by Team
-if selected_teams and "All" not in selected_teams:
+if selected_teams:
     filtered_df = filtered_df[filtered_df['Team'].isin(selected_teams)]
 
 # Define columns to display
 display_columns = [
-    'Name', 'Team', 'Age', 'Primary Position', 'Usage'
+    'Name', 'Team', 'Age', 'Primary Position', 'Position', 'Usage'
 ] + numeric_columns
 
 # Ensure only available columns are displayed
