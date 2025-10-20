@@ -12,7 +12,7 @@ st.title("Player Involvement")
 # Function to load data once per session
 @st.cache_data
 def load_data():
-    file_url = "https://github.com/LeScott2406/PlayerInvolvement/raw/refs/heads/main/updated_player_stats1.xlsx"
+    file_url = "https://github.com/LeScott2406/PlayerInvolvement/raw/refs/heads/main/updated_player_stats2.xlsx"
     response = requests.get(file_url)
     with open("/tmp/updated_player_stats.xlsx", "wb") as f:
         f.write(response.content)
